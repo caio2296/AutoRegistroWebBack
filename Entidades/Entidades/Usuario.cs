@@ -8,8 +8,8 @@ namespace Entidades.Entidades
     [Table("TB_Usuario")]
     public class Usuario :IdentityUser
     {
-        [Column("USR_NomeAutoEscola")]
-        public string? NomeAutoEscola { get; set; }
+        [Column("USR_NomeEmpresa")]
+        public string? NomeEmpresa { get; set; }
         [Column("USR_URLFOTO")]
         public string? UrlFoto { get; set; }
         [Column("USR_CELULAR")]

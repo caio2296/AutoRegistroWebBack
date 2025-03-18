@@ -44,7 +44,7 @@ namespace Dominio.Servicos
                            select new ViewModelUsuario
                            {
                                Id = AutoEscola.Id,
-                               NomeAutoEscola = AutoEscola.NomeAutoEscola
+                               NomeAutoEscola = AutoEscola.NomeEmpresa
                            }).ToList();
             return retorno;
         }
