@@ -122,7 +122,7 @@ namespace Infraestrutura.Repositorio
                                         select new Usuario
                                         {
                                             Id = Usuario.Id,
-                                            NomeAutoEscola = Usuario.NomeAutoEscola,
+                                            NomeEmpresa = Usuario.NomeEmpresa,
                                             PasswordHash = Usuario.PasswordHash
                                         }).AsNoTracking().ToList();
                 return listarAutoEscola;
