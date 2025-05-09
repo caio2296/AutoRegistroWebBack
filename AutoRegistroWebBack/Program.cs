@@ -34,17 +34,18 @@ builder.Services.AddDefaultIdentity<Usuario>(options =>
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 
-builder.Services.AddSingleton<IManutencao, RepositorioManutencao>();
-builder.Services.AddSingleton<IVeiculo, RepositorioVeiculo>();
-builder.Services.AddSingleton<IUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IVeiculo, RepositorioVeiculo>();
+builder.Services.AddScoped<IManutencao, RepositorioManutencao>();
 
-builder.Services.AddSingleton<IUsuarioServico, UsuarioServico>();
-builder.Services.AddSingleton<IVeiculoServico, VeiculoServico>();
-builder.Services.AddSingleton<IManutencaoServico, ManutencaoServico>();
+builder.Services.AddScoped<IUsuarioServico, UsuarioServico>();
+builder.Services.AddScoped<IVeiculoServico, VeiculoServico>();
+builder.Services.AddScoped<IManutencaoServico, ManutencaoServico>();
 
-builder.Services.AddSingleton<IAplicacaoUsuario, AplicacaoUsuario>();
-builder.Services.AddSingleton<IAplicacaoVeiculo, AplicacaoVeiculo>();
-builder.Services.AddSingleton<IAplicacaoManutencao, AplicacaoManutencao>();
+builder.Services.AddScoped<IAplicacaoUsuario, AplicacaoUsuario>();
+builder.Services.AddScoped<IAplicacaoVeiculo, AplicacaoVeiculo>();
+builder.Services.AddScoped<IAplicacaoManutencao, AplicacaoManutencao>();
+builder.Services.AddScoped<TokenJwtBuilder>();
 
 
 //builder.Services.AddAuthorization(options =>
@@ -66,8 +67,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
 
-            ValidIssuer = "Securiry.Bearer",
-            ValidAudience = "Securiry.Bearer",
+            ValidIssuer = "Security.Bearer",
+            ValidAudience = "Security.Bearer",
 
             IssuerSigningKey = JwtSecurityKey.Creater("Secret_Key-12345678")
         };
@@ -130,18 +131,18 @@ if (app.Environment.IsDevelopment())
 
 }
 
-//var frontClient = "http://localhost:4200";
+var frontClient = "http://localhost:4200";
 //var frontClient2 = "https://caioportifolio.azurewebsites.net/";
-//app.UseCors(x =>
-//x.AllowAnyOrigin()
-//.AllowAnyMethod()
-//.AllowAnyHeader()
-//.WithOrigins(frontClient, frontClient2));
+app.UseCors(x =>
+x.AllowAnyOrigin()
+.AllowAnyMethod()
+.AllowAnyHeader()
+.WithOrigins(frontClient));
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

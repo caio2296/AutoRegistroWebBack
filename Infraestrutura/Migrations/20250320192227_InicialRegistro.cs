@@ -82,7 +82,7 @@ namespace Infraestrutura.Migrations
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    USR_NomeAutoEscola = table.Column<string>(type: "longtext", nullable: true)
+                    USR_NomeEmpresa = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     USR_URLFOTO = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),

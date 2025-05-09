@@ -7,6 +7,6 @@ namespace Dominio.Interfaces.InterfacesServicos
         Task AdicionarVeiculo(Veiculo veiculo);
         Task AtualizarVeiculo(Veiculo veiculo);
         Task<List<Veiculo>> BuscarVeiculosPertoTrocarOleo();
-        List<ModelViewVeiculo> BuscarVeiculosCustomizada(string idUsuario);
+        Task<List<ModelViewVeiculo>> BuscarVeiculosCustomizada(string idUsuario);
     }
 }

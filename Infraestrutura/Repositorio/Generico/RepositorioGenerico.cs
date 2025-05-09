@@ -13,7 +13,7 @@ namespace InfraEstrutura.Repositorio.Generico
         public RepositorioGenerico()
         {
             _optionBuilder = new DbContextOptionsBuilder<Contexto>()
-                                .UseMySql("Server=mysql.autoregistro.kinghost.net;DataBase=autoregistro;User=autoregistro;Password=zxcasd384",
+                                .UseMySql("Server=mysql.autoregistro.kinghost.net;DataBase=autoregistro01;User=autoregistro01;Password=Zw4TH4jHDQt9nQU",
                                 new MySqlServerVersion(new Version(10, 2, 36)))
 
             //.UseMySql("Server=localhost;DataBase=autoregistro;Uid=root;Pwd=zxcasd384!A",
@@ -24,11 +24,20 @@ namespace InfraEstrutura.Repositorio.Generico
 
         public async Task Adicionar(T Objeto)
         {
-            using (var data = new Contexto(_optionBuilder))
+            try
             {
-                data.Set<T>().Add(Objeto);
-                await data.SaveChangesAsync();
+                using (var data = new Contexto(_optionBuilder))
+                {
+                    data.Set<T>().Add(Objeto);
+                    await data.SaveChangesAsync();
+                }
             }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+           
         }
 
         public async Task Atualizar(T Objeto)

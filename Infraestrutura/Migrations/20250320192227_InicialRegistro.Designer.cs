@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestrutura.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250307174849_InicialRegistro")]
+    [Migration("20250320192227_InicialRegistro")]
     partial class InicialRegistro
     {
         /// <inheritdoc />
@@ -115,9 +115,9 @@ namespace Infraestrutura.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("NomeAutoEscola")
+                    b.Property<string>("NomeEmpresa")
                         .HasColumnType("longtext")
-                        .HasColumnName("USR_NomeAutoEscola");
+                        .HasColumnName("USR_NomeEmpresa");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)

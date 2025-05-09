@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoRegistroWebBack.Models;
 
 namespace AutoRegistro.Controllers
 {
@@ -25,16 +26,48 @@ namespace AutoRegistro.Controllers
             _IaplicacaoManutencao = aplicacaoManutencao;
         }
         [Authorize]
-        [HttpGet("/api/BuscarManutencoesCustomizadas")]
+        [HttpGet("/api/BuscarManutencoesCustomizadas/{idVeiculo}")]
         [Produces("application/json")]
         public async Task<ActionResult<List<ViewModelManutencao>>> BuscarManutencoesCustomizadas(string idVeiculo)
         {
-            return await _IaplicacaoManutencao.BuscarManutencoesCustomizadas(idVeiculo);
+            try
+            {
+                if (await _IaplicacaoManutencao.BuscarManutencoesCustomizadas(idVeiculo) == null)
+                {
+                    return NotFound("Veículos não encontrados.");
+                }
+                return Ok(await _IaplicacaoManutencao.BuscarManutencoesCustomizadas(idVeiculo));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, $"Erro no servidor. {ex.Message}");
+            }
+           
         }
+        [Authorize]
+        [HttpGet("/api/BuscarManutencaoId/{id}")]
+        [Produces("application/json")]
+        public async Task<ActionResult<ViewModelManutencao>> BuscarManutencaoId(string id)
+        {
+            try
+            {
+                if (await _IaplicacaoManutencao.BuscarPorId(id) == null)
+                   return NotFound("Manutenção não encontrada!");
+
+                return Ok(await _IaplicacaoManutencao.BuscarPorId(id));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, $"Erro no servidor. {ex.Message}");
+            }
+        }
+
         [Authorize]
         [Produces("application/json")]
         [HttpPost("/api/AdicionarManutencao")]
-        public async Task<ActionResult> AdicionarManutencao(Manutencao novaManutencao)
+        public async Task<ActionResult> AdicionarManutencao([FromBody]ManutencaoModel novaManutencao)
         {
             if (novaManutencao == null)
             {
@@ -43,8 +76,9 @@ namespace AutoRegistro.Controllers
 
             try
             {
+                Manutencao manutencao = novaManutencao;
                 // Chama o método de adicionar manutenção
-                await _IaplicacaoManutencao.AdicionarManutencao(novaManutencao);
+                await _IaplicacaoManutencao.AdicionarManutencao(manutencao);
 
                 // Retorna uma resposta de sucesso, com o código HTTP 201 (Created)
                 return CreatedAtAction(nameof(AdicionarManutencao), new { id = novaManutencao.Id }, novaManutencao);
@@ -57,21 +91,23 @@ namespace AutoRegistro.Controllers
         }
         [Authorize]
         [Produces("application/json")]
-        [HttpPut("/api/AtualizarManutencao")]
-        public async Task<ActionResult> AtualizarManutencao(Manutencao novaManutencao)
+        [HttpPatch("/api/AtualizarManutencao")]
+        public async Task<ActionResult> AtualizarManutencao(ManutencaoModel novaManutencao)
         {
-            if (novaManutencao == null)
+            try
+            {
+                if (novaManutencao.Id == null)
             {
                 return BadRequest("Os dados da manutenção não podem ser nulos.");
             }
             var manutencaoExistente = await _IaplicacaoManutencao.BuscarPorId(novaManutencao.Id);
             if (manutencaoExistente == null)
             {
-                return NotFound($"Manutenção com ID {novaManutencao.Id} não encontrada.");
+                return NotFound($"Manutenção com ID {manutencaoExistente.Id} não encontrada.");
             }
-            try
-            {
-                await _IaplicacaoManutencao.Atualizar(novaManutencao);
+                novaManutencao.IdVeiculo = manutencaoExistente.IdVeiculo;
+                Manutencao manutencao = novaManutencao;
+                await _IaplicacaoManutencao.Atualizar(manutencao);
                 return NoContent();
             }
             catch (Exception ex)
@@ -84,21 +120,17 @@ namespace AutoRegistro.Controllers
 
         [Authorize]
         [Produces("application/json")]
-        [HttpDelete("/api/ExcluirManutencao")]
-        public async Task<ActionResult> ExcluirManutencao(Manutencao manutencao)
+        [HttpDelete("/api/ExcluirManutencao/{id}")]
+        public async Task<ActionResult> ExcluirManutencao(string id)
         {
-            if (manutencao == null)
-            {
-                return BadRequest("Os dados da manutenção não podem ser nulos.");
-            }
-            var manutencaoExistente = await _IaplicacaoManutencao.BuscarPorId(manutencao.Id);
+            var manutencaoExistente = await _IaplicacaoManutencao.BuscarPorId(id);
             if (manutencaoExistente == null)
             {
-                return NotFound($"Manutenção com ID {manutencao.Id} não encontrada.");
+                return NotFound($"Manutenção com ID {manutencaoExistente} não encontrada.");
             }
             try
             {
-                await _IaplicacaoManutencao.Excluir(manutencao);
+                await _IaplicacaoManutencao.Excluir(manutencaoExistente);
                 return NoContent();
             }
             catch (Exception ex)
