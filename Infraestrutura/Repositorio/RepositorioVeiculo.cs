@@ -34,7 +34,7 @@ namespace InfraEstrutura.Repositorio
             }
         }
 
-        public List<Veiculo> ListarVeiculosCustomizada(string idUsuario)
+        public async  Task<List<Veiculo>> ListarVeiculosCustomizada(string idUsuario)
         {
             using (var banco = new Contexto(_optionsBuilder))
             {
@@ -49,8 +49,8 @@ namespace InfraEstrutura.Repositorio
                                          KmTrocaOleo = Veiculo.KmTrocaOleo,
                                          IdUsuario = Veiculo.IdUsuario,
 
-                                     }).AsNoTracking().ToList();
-                return listaVeiculos;
+                                     }).AsNoTracking().ToListAsync();
+                return await listaVeiculos;
             }
         }
 

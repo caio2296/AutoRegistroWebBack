@@ -112,9 +112,9 @@ namespace Infraestrutura.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("NomeAutoEscola")
+                    b.Property<string>("NomeEmpresa")
                         .HasColumnType("longtext")
-                        .HasColumnName("USR_NomeAutoEscola");
+                        .HasColumnName("USR_NomeEmpresa");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)

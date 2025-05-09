@@ -49,9 +49,9 @@ namespace Aplicacao.Aplicacoes
             return veiculo ?? new Veiculo();
         }
 
-        public List<ModelViewVeiculo> BuscarVeiculosCustomizada(string idUsuario)
+        public async Task<List<ModelViewVeiculo>> BuscarVeiculosCustomizada(string idUsuario)
         {
-            return _veiculoServico.BuscarVeiculosCustomizada(idUsuario);
+            return await _veiculoServico.BuscarVeiculosCustomizada(idUsuario);
         }
 
         public async Task<List<Veiculo>> BuscarVeiculosPertoTrocarOleo()

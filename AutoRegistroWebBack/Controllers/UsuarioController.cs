@@ -1,6 +1,7 @@
 ﻿using Aplicacao.Interfaces;
 using AutoRegistro.Token;
 using AutoRegistroWebBack.Models;
+using Dominio.Interfaces.InterfacesServicos;
 using Dominio.Servicos;
 using Entidades.Entidades;
 using Entidades.Enums;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-
+using System.Security.Claims;
 using System.Text;
 
 namespace AutoRegistro.Controllers
@@ -20,45 +21,74 @@ namespace AutoRegistro.Controllers
         private readonly IAplicacaoUsuario _aplicacaoUsuario;
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
-        private readonly UsuarioServico _usuarioServico;
         private readonly TokenJwtBuilder _tokenJwtBuilder;
 
         public UsuarioController(IAplicacaoUsuario aplicacaoUsuario, UserManager<Usuario> userManager,
-            SignInManager<Usuario> signInManager, UsuarioServico usuarioServico, TokenJwtBuilder tokenJwtBuilder)
+            SignInManager<Usuario> signInManager, TokenJwtBuilder tokenJwtBuilder)
         {
             _aplicacaoUsuario = aplicacaoUsuario;
             _signInManager = signInManager;
             _userManager = userManager;
-            _usuarioServico = usuarioServico;
             _tokenJwtBuilder = tokenJwtBuilder;
         }
 
         //[Authorize(Policy = "RequireAdministratorRole")]
-        [Authorize]
+        [AllowAnonymous]
         [Produces("application/json")]
         [HttpPost("/api/RegistrarUsuario")]
-        public async Task<IActionResult> RegistrarUsuario([FromBody] Usuario registro)
+        public async Task<IActionResult> RegistrarUsuario([FromBody] RegistroModel registro)
         {
-            if (await _usuarioServico.EmailPassowrdENulo(registro.Email, registro.PasswordHash))
+            if (string.IsNullOrWhiteSpace(registro.Email) || string.IsNullOrWhiteSpace(registro.PasswordHash))
                 return Ok("Falta alguns dados");
 
-            var resultado = await _usuarioServico.CriarUsuario(registro,_userManager);
-            if (!resultado.Sucesso)
-                return BadRequest(resultado.Mensagem);
-            return Ok(resultado.Mensagem);
 
+            var user = new Usuario
+            {
+                UserName=registro.NomeEmpresa,
+                NomeEmpresa = registro.NomeEmpresa,
+                Email = registro.Email,
+                Celular = registro.Celular,
+                Tipo = TipoUsuario.Comum
+            };
+
+            var resultado = await _userManager.CreateAsync(user, registro.PasswordHash);
+
+            if (resultado.Errors.Any())
+            {
+                return BadRequest("Erro ao criar usuário");
+            }
+
+            // Geração de Confirmação caso precise
+            var userId = await _userManager.GetUserIdAsync(user);
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            // retorno email 
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var resultado2 = await _userManager.ConfirmEmailAsync(user, code);
+            if (resultado2.Succeeded)
+                return Ok("Usuário Adicionado com Sucesso");
+            else
+                return BadRequest("Erro ao confirmar email");
         }
         [AllowAnonymous]
         [HttpPost("/api/CriarToken")]
         [Produces("application/json")]
         public async Task<IActionResult> CriarToken([FromBody] Login login)
         {
+            if (string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.Password))
+                return Ok("Falta alguns dados");
 
-            var usuario = await _usuarioServico.ValidarCredenciaisAsync(login.Email, login.Password,_userManager,_signInManager);
-            if (usuario == null)
+            if (!_userManager.Users.Any())
             {
-                return Unauthorized(); // Usuário não encontrado ou dados inválidos
+                return BadRequest("Não foi possivel encontrar o Usuario!");
             }
+            var user = await _userManager.FindByEmailAsync(login.Email);
+            if (user == null)
+                return Unauthorized(" Usuario não autorizado, verifique seu email e senha!"); // O usuário não foi encontrado
+            var resultado = await _signInManager.CheckPasswordSignInAsync(user, login.Password, lockoutOnFailure: false);
+            if (!resultado.Succeeded)
+                return Unauthorized("Usuario não autorizado, verifique seu email e senha!"); // Autenticação falhou
 
             var idUsuario = await _aplicacaoUsuario.RetornaIdUsuario(login.Email);
             var tipoUsuario = await _aplicacaoUsuario.RetornarTipoUsuario(login.Email);
@@ -66,6 +96,31 @@ namespace AutoRegistro.Controllers
             var token = _tokenJwtBuilder.GerarTokenJwt(idUsuario, tipoUsuario);
 
             return Ok(token.value); // Autenticação bem-sucedida, retorne o token
+        }
+
+        [Authorize] // Garante que apenas usuários autenticados acessam
+        [HttpGet("/api/ObterUsuario")]
+        public async Task<IActionResult> ObterUsuario()
+        {
+            var userId = User.FindFirst("idUsuario")?.Value;
+
+
+            if (userId == null)
+                return Unauthorized("Usuário não autenticado");
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return NotFound("Usuário não encontrado");
+
+            return Ok(new
+            {
+                user.UserName,
+                user.Email,
+                user.Celular,
+                user.NomeEmpresa,
+                user.Tipo
+            });
         }
 
         [Authorize] // Garante que o usuário esteja autenticado

@@ -96,8 +96,9 @@ namespace AutoRegistro.Token
                 .AddIssuer("Security.Bearer")
                 .AddAudience("Security.Bearer")
                 .AddClaim("idUsuario", idUsuario)
+                .AddClaim(ClaimTypes.NameIdentifier, idUsuario)
                 .AddTipoClaim(tipoUsuario)
-                .AddExpiry(5) // Expiração do token em 5 minutos
+                .AddExpiry(30) // Expiração do token em 5 minutos
                 .Builder();
         }
     }

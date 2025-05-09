@@ -10,6 +10,6 @@ namespace Aplicacao.Interfaces
         Task<bool> ExisteVeiculo(string placa);
         Task AtualizarVeiculo(Veiculo veiculo);
         Task<List<Veiculo>> BuscarVeiculosPertoTrocarOleo();
-        List<ModelViewVeiculo> BuscarVeiculosCustomizada(string idUsuario);
+        Task<List<ModelViewVeiculo>> BuscarVeiculosCustomizada(string idUsuario);
     }
 }

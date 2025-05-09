@@ -55,7 +55,7 @@ namespace InfraEstrutura.Configuracao
         private string ObterStringConexaoMySql()
         {
             //string strcon = "Server=localhost;DataBase=autoregistro;Uid=root;Pwd=zxcasd384!A";
-            string strcon = "Server=mysql.autoregistro.kinghost.net;DataBase=autoregistro;User=autoregistro;Password=zxcasd384";
+            string strcon = "Server=mysql.autoregistro.kinghost.net;DataBase=autoregistro01;User=autoregistro01;Password=Zw4TH4jHDQt9nQU";
 
             return strcon;
         }
